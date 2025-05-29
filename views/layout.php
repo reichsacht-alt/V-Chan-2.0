@@ -11,8 +11,8 @@ require_once "includes/config.php";
 
 <head>
     <meta charset="utf-8">
-    <title>V-Chan</title>
-    <link rel="icon" href="img/Sha.png">
+    <title>V-Chan<?php if($section!="main")echo " - ".$title; ?></title>
+    <link rel="icon" href="img/ui/V-black.svg">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <link rel="icon" href="img/favicon.ico">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">

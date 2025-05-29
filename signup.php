@@ -18,7 +18,6 @@ if (isset($_POST['signUp'])) {
         $uName = trim($_POST['uName']);
         $uEmail = filter_var(trim($_POST['uEmail']), FILTER_SANITIZE_EMAIL);
         $uPassword = password_hash($_POST['uPassword'], PASSWORD_DEFAULT);
-        $pfp = 'default1.png';
 
         // Validar formato de email
         if (!filter_var($uEmail, FILTER_VALIDATE_EMAIL)) {
@@ -47,9 +46,9 @@ if (isset($_POST['signUp'])) {
                 $code = generarCodigoVerificacion();
 
                 // Insertar usuario
-                $sql = "INSERT INTO users (username, password, email, pfp, code, confirmed, verified, cr_date) VALUES (?, ?, ?, ?, ?, 0, 0, NOW())";
+                $sql = "INSERT INTO users (username, password, email, code, confirmed, verified, cr_date) VALUES (?, ?, ?, ?, 0, 0, NOW())";
                 $stmt = mysqli_prepare($link, $sql);
-                mysqli_stmt_bind_param($stmt, "sssss", $uName, $uPassword, $uEmail, $pfp, $code);
+                mysqli_stmt_bind_param($stmt, "ssss", $uName, $uPassword, $uEmail, $code);
                 $success = mysqli_stmt_execute($stmt);
 
                 if ($success) {
@@ -68,8 +67,8 @@ if (isset($_POST['signUp'])) {
                         $mail->isSMTP();
                         $mail->Host       = 'smtp.gmail.com';
                         $mail->SMTPAuth   = true;
-                        $mail->Username   = 'tuemail@gmail.com';         // ✔ tu correo
-                        $mail->Password   = 'tu-app-password';           // ✔ contraseña app
+                        $mail->Username   = 'v.chan.senpai@gmail.com';         // ✔ tu correo
+                        $mail->Password   = 'ID183wx2';           // ✔ contraseña app
                         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
                         $mail->Port       = 587;
 
@@ -95,14 +94,14 @@ if (isset($_POST['signUp'])) {
                     $result = mysqli_stmt_get_result($selectStmt);
                     $_SESSION['user'] = mysqli_fetch_assoc($result);
                     
-                    $sql = "INSERT INTO userPicture (uid, image, directory) VALUES (?, ?, ?)";
+                    $sql = "INSERT INTO userpicture (uid, image, directory) VALUES (?, ?, ?)";
                     $stmt = mysqli_prepare($link, $sql);
                     $pic="default".rand(1,6).".png";
                     $path="img/users/";
                     mysqli_stmt_bind_param($stmt, "iss", $_SESSION['user']['id'], $pic, $path);
                     $success = mysqli_stmt_execute($stmt);
 
-                    $successMessage = "✅ Registro exitoso. Tu UID es: $uid. Se ha enviado un correo a $uEmail con tu código de verificación.";
+                    $successMessage = "✅ Registro exitoso. Tu UID es: $uid. Se ha enviado un correo a ".$uEmail." con tu código de verificación.";
                     header("Location: index.php?verifReq=1");
                 } else {
                     $errorMessage = "❌ Error al registrar: " . mysqli_error($link);
