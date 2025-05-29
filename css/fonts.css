@@ -1,0 +1,45 @@
+ @font-face {
+     font-family: AnimeAce;
+     src: url('../fonts/Anime_Ace/animeace.ttf')
+ }
+
+ .ace {
+     font-family: AnimeAce;
+ }
+
+ @font-face {
+     font-family: AnimeAceB;
+     src: url('../fonts/Anime_Ace/animeace_b.ttf')
+ }
+
+ .aceb {
+     font-family: AnimeAceB;
+ }
+
+ @font-face {
+     font-family: AnimeAceI;
+     src: url('../fonts/Anime_Ace/animeace_i.ttf')
+ }
+
+ .acei {
+     font-family: AnimeAceI;
+ }
+
+
+ @font-face {
+     font-family: Handwritten_nat29;
+     src: url('../fonts/Handwritten_Nat29_Font.ttf')
+ }
+
+ .HWNAT26 {
+     font-family: Handwritten_nat29;
+ }
+
+  @font-face {
+     font-family: GumiFontSymbols;
+     src: url('../fonts/GumiFontSymbols.ttf')
+ }
+
+ .gumi {
+     font-family: GumiFontSymbols;
+ }
