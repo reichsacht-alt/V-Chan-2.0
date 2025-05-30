@@ -1,7 +1,6 @@
 <?php
 require_once "includes/config.php";
 ?>
-<link rel="stylesheet" href="css/home.css">
 <div align="center">
     <div style="position: relative; width: 100%;">
             <img class="titleChar" src="img/ui/v-chan.svg" alt="">
