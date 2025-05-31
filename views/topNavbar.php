@@ -4,7 +4,7 @@
     <a href="index.php"><img class="icon" src="img/ui/V-white.svg"></a>
   </div>
   <div class="navLink">
-    <a href="posts.php?pag=1&tag=1" class="navitem ace slide">Posts</a>
+    <a href="posts.php?pag=1&postperpage=10&tag=1" class="navitem ace slide">Posts</a>
   </div>
   <?php if (isset($_SESSION['user'])) { ?>
     <div class="profile">

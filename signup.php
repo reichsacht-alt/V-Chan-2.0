@@ -94,15 +94,22 @@ if (isset($_POST['signUp'])) {
                     $result = mysqli_stmt_get_result($selectStmt);
                     $_SESSION['user'] = mysqli_fetch_assoc($result);
                     
-                    $sql = "INSERT INTO userpicture (uid, image, directory) VALUES (?, ?, ?)";
+                    $sql = "INSERT INTO userpicture (uid, image) VALUES (?, ?)";
                     $stmt = mysqli_prepare($link, $sql);
                     $pic="default".rand(1,6).".png";
-                    $path="img/users/";
-                    mysqli_stmt_bind_param($stmt, "iss", $_SESSION['user']['id'], $pic, $path);
+                    mysqli_stmt_bind_param($stmt, "is", $_SESSION['user']['id'], $pic);
                     $success = mysqli_stmt_execute($stmt);
-
+                    $_SESSION['user']['picture'] = $pic;
+                    $sql = "INSERT INTO useraccesslevel (uid, lid) VALUES (?, ?)";
+                    $stmt = mysqli_prepare($link, $sql);
+                    $accessLevel=2;
+                    mysqli_stmt_bind_param($stmt, "ii", $_SESSION['user']['id'], $accessLevel);
+                    $success = mysqli_stmt_execute($stmt);
+                    $level=mysqli_fetch_assoc(mysqli_query($link,"SELECT level FROM accessLevel WHERE id=".$accessLevel));
+                    $_SESSION['user']['accessLevel'] = $level;
                     $successMessage = "✅ Registro exitoso. Tu UID es: $uid. Se ha enviado un correo a ".$uEmail." con tu código de verificación.";
                     header("Location: index.php?verifReq=1");
+                    exit;
                 } else {
                     $errorMessage = "❌ Error al registrar: " . mysqli_error($link);
                 }

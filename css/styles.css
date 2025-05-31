@@ -275,3 +275,16 @@ margin: 0px 20px 0px 20px;
   height: 200px;
   object-fit: cover; /* o contain según prefieras */
 }
+
+.pixelated-image {
+    image-rendering: pixelated;
+    width: 150px;
+    height: 200px;
+    display: block;
+    border: 1px solid black;
+    cursor: pointer;
+}
+
+.nsfw-image {
+    filter: blur(8px);
+}

@@ -7,3 +7,4 @@ if (isset($_COOKIE["pass"]) && isset($_COOKIE["username"])) {
     setcookie("pass","",time()-60*60*24*30);
 }
 header('Location: index.php');
+exit;

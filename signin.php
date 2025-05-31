@@ -29,6 +29,20 @@ if (isset($_POST['signIn'])) {
 
                 $_SESSION['user']['picture'] = $usrImg;
 
+                $sql = "SELECT al.level 
+FROM accesslevel AS al 
+INNER JOIN useraccesslevel AS ual 
+    ON al.id = ual.lid 
+WHERE ual.uid = ?;
+";
+                $stmt = mysqli_prepare($link, $sql);
+                mysqli_stmt_bind_param($stmt, "i", $_SESSION['user']['id']);
+                mysqli_stmt_execute($stmt);
+                $result = mysqli_stmt_get_result($stmt);
+                $usrLvl = mysqli_fetch_assoc($result);
+
+                $_SESSION['user']['accessLevel'] = $usrLvl;
+
                 header("Location: index.php");
                 exit;
             } else {

@@ -43,6 +43,7 @@ if (isset($_POST['verify'])) {
             $_SESSION['user']['confirmed'] = 1;
             $successMessage = "✅ ¡Cuenta verificada con éxito!";
             header("Location: index.php");
+            exit;
         } else {
             $errorMessage = "❌ Código incorrecto. Verifica tu correo.";
         }
