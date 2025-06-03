@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 31-05-2025 a las 05:28:53
+-- Tiempo de generación: 03-06-2025 a las 04:59:36
 -- Versión del servidor: 10.4.27-MariaDB
 -- Versión de PHP: 8.1.12
 
@@ -130,7 +130,7 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `uid`, `username`, `password`, `email`, `code`, `confirmed`, `verified`, `cr_date`, `dl_date`) VALUES
 (1, 'UID000001', 'reichsacht', '$2y$10$xu96jYomZfEN9Nnr14HlkeuK5DzUMiZGIh95IPspZQurSrfEAx9ye', 'rechtenbann@gmail.com', 'REICHS', 1, 1, '2025-05-29 11:57:30', NULL),
-(2, 'UID000002', 'Ryuu', '$2y$10$3bwAp4z.63gm.dvat3m/COJPpZeU8QeadVPyum9Q7K79drSFsCxVy', 'hratzeld@gmail.com', 'KQ703A', 0, 0, '2025-05-30 13:31:58', NULL),
+(2, 'UID000002', 'Ryuu', '$2y$10$3bwAp4z.63gm.dvat3m/COJPpZeU8QeadVPyum9Q7K79drSFsCxVy', 'hratzeld@gmail.com', 'KQ703A', 1, 0, '2025-05-30 13:31:58', NULL),
 (3, 'UID000003', 'reichsacht2', '$2y$10$NIh.jcy7nytxfzUJ8dZhsez7ZMNWpUK7jAQQRJPnPunJSNhLLNaNG', 'reichsacht2@gmail.com', 'HUX8EK', 0, 0, '2025-05-30 19:01:47', NULL);
 
 --

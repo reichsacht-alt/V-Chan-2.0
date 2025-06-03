@@ -24,18 +24,18 @@ if (isset($_POST['submit'])) {
             $uploadDirOriginal = "img/posts/original/";
             $uploadDirPreview  = "img/posts/preview/";
 
-            $allowedImageExt = ['jpg', 'jpeg', 'png', 'webp']; // No incluimos gif
+            $allowedImageExt = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
             $allowedVideoExt = ['mp4'];
-            $allowedAudioExt = ['mp3', 'wav']; // Agregar audio aquí si es necesario
+            $allowedAudioExt = ['mp3', 'wav']; // Audio permitidos pero sin miniatura generada aquí
 
             $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
 
-            // Bloquear archivos GIF y de audio (MP3, WAV)
-            if ($ext === 'gif' || in_array($ext, $allowedAudioExt)) {
-                $confirm = 0; // No permitir GIFs ni audios
-            } elseif (!in_array($ext, array_merge($allowedImageExt, $allowedVideoExt))) {
-                $confirm = 0; // Bloquear cualquier otro tipo de archivo no permitido
+            // Bloquear si la extensión NO está en los permitidos (imagen, video o audio)
+            $allowedExt = array_merge($allowedImageExt, $allowedVideoExt, $allowedAudioExt);
+            if (!in_array($ext, $allowedExt)) {
+                $confirm = 0;
             } else {
+                // Insertar post sin paths aún
                 $sqlInsert = "INSERT INTO posts (uid,title, comment, up_date) VALUES (?, ?, ?, NOW())";
                 $stmt = mysqli_prepare($link, $sqlInsert);
                 mysqli_stmt_bind_param($stmt, "iss", $uid, $title, $comment);
@@ -45,7 +45,7 @@ if (isset($_POST['submit'])) {
                 $hash = md5($postId);
                 $originalName = $hash . '.' . $ext;
                 $originalPath = $uploadDirOriginal . $originalName;
-                $previewName = "preview-" . $hash . ".png";
+                $previewName = "preview-" . $hash . ".png"; // siempre png
                 $previewPath = $uploadDirPreview . $previewName;
 
                 if (!move_uploaded_file($file['tmp_name'], $originalPath)) {
@@ -57,19 +57,32 @@ if (isset($_POST['submit'])) {
                     if ($hasThumbnail) {
                         $thumbFile = $_FILES['thumbnail'];
                         $thumbExt = strtolower(pathinfo($thumbFile['name'], PATHINFO_EXTENSION));
-                        $validThumbExt = ['jpg', 'jpeg', 'png', 'webp', 'jfif'];
+                        $validThumbExt = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'jfif'];
 
                         if (in_array($thumbExt, $validThumbExt)) {
                             list($thumbWidth, $thumbHeight) = getimagesize($thumbFile['tmp_name']);
                             if ($thumbWidth < 150 || $thumbHeight < 200) {
                                 $previewName = "image.png"; // fallback por tamaño insuficiente
                             } else {
-                                $image = match ($thumbExt) {
-                                    'jpg', 'jpeg', 'jfif' => imagecreatefromjpeg($thumbFile['tmp_name']),
-                                    'png'                 => imagecreatefrompng($thumbFile['tmp_name']),
-                                    'webp'                => imagecreatefromwebp($thumbFile['tmp_name']),
-                                    default               => false
-                                };
+                                // Crear imagen origen thumbnail según extensión
+                                switch ($thumbExt) {
+                                    case 'jpg':
+                                    case 'jpeg':
+                                    case 'jfif':
+                                        $image = @imagecreatefromjpeg($thumbFile['tmp_name']);
+                                        break;
+                                    case 'png':
+                                        $image = @imagecreatefrompng($thumbFile['tmp_name']);
+                                        break;
+                                    case 'webp':
+                                        $image = @imagecreatefromwebp($thumbFile['tmp_name']);
+                                        break;
+                                    case 'gif':
+                                        $image = @imagecreatefromgif($thumbFile['tmp_name']);
+                                        break;
+                                    default:
+                                        $image = false;
+                                }
 
                                 if ($image) {
                                     $targetWidth = 150;
@@ -83,24 +96,47 @@ if (isset($_POST['submit'])) {
                                     $cropX = intval(($resizedWidth - $targetWidth) / 2);
                                     $cropY = intval(($resizedHeight - $targetHeight) / 2);
                                     $thumbnail = imagecreatetruecolor($targetWidth, $targetHeight);
+                                    // Para preservar transparencia en PNG y GIF
+                                    imagealphablending($thumbnail, false);
+                                    imagesavealpha($thumbnail, true);
+                                    $transparent = imagecolorallocatealpha($thumbnail, 0, 0, 0, 127);
+                                    imagefill($thumbnail, 0, 0, $transparent);
+
                                     imagecopy($thumbnail, $resized, 0, 0, $cropX, $cropY, $targetWidth, $targetHeight);
                                     imagepng($thumbnail, $previewPath);
                                     imagedestroy($image);
                                     imagedestroy($resized);
                                     imagedestroy($thumbnail);
                                 } else {
-                                    $previewName = "image.png"; // fallback por error al procesar imagen
+                                    error_log("Error al crear imagen desde thumbnail upload");
+                                    $previewName = "image.png"; // fallback
                                 }
                             }
+                        } else {
+                            $previewName = "image.png"; // extensión thumbnail inválida
                         }
                     } else {
+                        // No thumbnail subido => generamos según el tipo del archivo principal
                         if (in_array($ext, $allowedImageExt)) {
-                            $image = match ($ext) {
-                                'jpg', 'jpeg' => imagecreatefromjpeg($originalPath),
-                                'png'         => imagecreatefrompng($originalPath),
-                                'webp'        => imagecreatefromwebp($originalPath),
-                                default       => false
-                            };
+                            // Crear imagen origen principal según extensión
+                            switch ($ext) {
+                                case 'jpg':
+                                case 'jpeg':
+                                case 'jfif':
+                                    $image = @imagecreatefromjpeg($originalPath);
+                                    break;
+                                case 'png':
+                                    $image = @imagecreatefrompng($originalPath);
+                                    break;
+                                case 'webp':
+                                    $image = @imagecreatefromwebp($originalPath);
+                                    break;
+                                case 'gif':
+                                    $image = @imagecreatefromgif($originalPath);
+                                    break;
+                                default:
+                                    $image = false;
+                            }
 
                             if ($image) {
                                 $targetWidth = 150;
@@ -114,13 +150,19 @@ if (isset($_POST['submit'])) {
                                 $cropX = intval(($resizedWidth - $targetWidth) / 2);
                                 $cropY = intval(($resizedHeight - $targetHeight) / 2);
                                 $thumbnail = imagecreatetruecolor($targetWidth, $targetHeight);
+                                imagealphablending($thumbnail, false);
+                                imagesavealpha($thumbnail, true);
+                                $transparent = imagecolorallocatealpha($thumbnail, 0, 0, 0, 127);
+                                imagefill($thumbnail, 0, 0, $transparent);
+
                                 imagecopy($thumbnail, $resized, 0, 0, $cropX, $cropY, $targetWidth, $targetHeight);
                                 imagepng($thumbnail, $previewPath);
                                 imagedestroy($image);
                                 imagedestroy($resized);
                                 imagedestroy($thumbnail);
                             } else {
-                                $previewName = "image.png";
+                                error_log("Error al crear imagen desde archivo original");
+                                $previewName = "image.png"; // fallback
                             }
                         } elseif (in_array($ext, $allowedVideoExt)) {
                             $tempFramePath = $uploadDirPreview . "temp-" . $hash . ".png";
@@ -142,43 +184,44 @@ if (isset($_POST['submit'])) {
                                     $cropX = intval(($resizedWidth - $targetWidth) / 2);
                                     $cropY = intval(($resizedHeight - $targetHeight) / 2);
                                     $thumbnail = imagecreatetruecolor($targetWidth, $targetHeight);
+                                    imagealphablending($thumbnail, false);
+                                    imagesavealpha($thumbnail, true);
+                                    $transparent = imagecolorallocatealpha($thumbnail, 0, 0, 0, 127);
+                                    imagefill($thumbnail, 0, 0, $transparent);
+
                                     imagecopy($thumbnail, $resized, 0, 0, $cropX, $cropY, $targetWidth, $targetHeight);
                                     imagepng($thumbnail, $previewPath);
                                     imagedestroy($image);
                                     imagedestroy($resized);
                                     imagedestroy($thumbnail);
-                                    unlink($tempFramePath);
                                 } else {
-                                    $previewName = "video.png";
+                                    error_log("No se pudo crear imagen desde frame de video");
+                                    $previewName = "image.png";
                                 }
+                                unlink($tempFramePath);
                             } else {
-                                $previewName = "video.png";
+                                error_log("Error extrayendo frame con ffmpeg: " . implode("\n", $output));
+                                $previewName = "image.png";
                             }
-                        } elseif (in_array($ext, $allowedAudioExt)) {
-                            $previewName = "audio.png"; // Se asigna una imagen por defecto
+                        } else {
+                            // Audio o extensión no soportada para miniatura
+                            $previewName = "image.png";
                         }
                     }
 
-                    $sqlUpdate = "UPDATE posts SET original=?, preview=? WHERE id=?";
-                    $stmtUp = mysqli_prepare($link, $sqlUpdate);
-                    mysqli_stmt_bind_param($stmtUp, "ssi", $originalName, $previewName, $postId);
-                    mysqli_stmt_execute($stmtUp);
+                    // Actualizar base de datos con rutas
+                    $sqlUpdate = "UPDATE posts SET original = ?, preview = ? WHERE id = ?";
+                    $stmtUpdate = mysqli_prepare($link, $sqlUpdate);
+                    mysqli_stmt_bind_param($stmtUpdate, "ssi", $originalName, $previewName, $postId);
+                    mysqli_stmt_execute($stmtUpdate);
 
-                    $confirm = 1;
-                    header("Location: posts.php?pag=1&postperpage=10&tag=1");
-                    exit;
+                    if (mysqli_affected_rows($link) < 1) {
+                        $confirm = 0;
+                    } else{
+                        header("Location: posts.php?pag=1&postperpage=10&tag=1");
+                        exit();
+                    }
                 }
-            }
-        } else {
-            $sqlInsert = "INSERT INTO posts (uid, title, comment, up_date) VALUES (?, ?, ?, NOW())";
-            $stmt = mysqli_prepare($link, $sqlInsert);
-            mysqli_stmt_bind_param($stmt, "iss", $uid, $title, $comment);
-            if (mysqli_stmt_execute($stmt)) {
-                $confirm = 1;
-                header("Location: posts.php?pag=1&postperpage=10&tag=1");
-                exit;
-            } else {
-                $confirm = 0;
             }
         }
     }

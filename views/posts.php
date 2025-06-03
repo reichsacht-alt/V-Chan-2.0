@@ -1,9 +1,10 @@
 <div style="text-align: center;">
+    <div id="updateToast" class="toast"></div>
     <div style="margin: 50px 50px 50px 50px; border: 1px solid black;">
         <div style="margin: 10px 10px 10px 10px; text-align:right">
             <a href="upload.php" class="ace"><img class="alt" alternate="img/ui/add-button-alt.svg" src="img/ui/add-button.svg" alt="" style="width: 35px; margin: 10px 10px 10px 10px"></a><br><br>
             <form method="post">
-                <label for="posPerPage">Posts per page</label>
+                Posts per page
                 <input type="numbmer" name="postPerPage" min="5" max="50" value="<?php echo $limit; ?>">
                 <input type="submit" name="pag" value="Confirm">
             </form>

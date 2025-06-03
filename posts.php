@@ -1,7 +1,6 @@
 <?php
 require_once "includes/config.php";
 session_start();
-
 $empty;
 // Paginación
 $page = isset($_GET['pag']) && is_numeric($_GET['pag']) ? intval($_GET['pag']) : 1;

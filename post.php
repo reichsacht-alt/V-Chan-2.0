@@ -25,14 +25,14 @@ $isGif = $extension === 'gif'; // si quieres tratar GIF aparte
 $isVid = in_array($extension, $videoExtensions);
 $isAud = in_array($extension, $audioExtensions);
 
-$query = "
-    SELECT * 
-    FROM postcomment pc 
-    WHERE pc.pid = $postId
-";
+// $query = "
+//     SELECT * 
+//     FROM postcomment pc 
+//     WHERE pc.pid = $postId
+// ";
 
-$result = mysqli_query($link, $query);
-$postData = mysqli_fetch_assoc($result);
+// $result = mysqli_query($link, $query);
+// $postData = mysqli_fetch_assoc($result);
 
 $section = "post";
 $title = "Post";
